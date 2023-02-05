@@ -1,0 +1,119 @@
+# Importing Libraries
+import pandas as pd
+import json
+import requests
+
+
+# Function to create lessons
+def read_excel_file(file_name):
+    sheet1_data = pd.read_excel(file_name, sheet_name=0, index_col=0)
+    # Applying true condition 
+    true=True
+    false=False
+    result_df = sheet1_data[sheet1_data['Summary Screen Validity'] == True]
+    # Converting to json data
+    result_df.reset_index(inplace=True)
+    format_json = result_df.to_json()    
+    # Taking only key value pair for OST/Question Text
+    data = json.loads(format_json)
+    question_text = data['OST/Question Text']
+    text_to_insert = list(question_text.values())
+    # Endpoint(API)
+    endpoint = "https://testplato.harbingergroup.com/api/lessons/createLesson"
+    # Taking one by one data from OSt/Question Text
+    for loop_text in text_to_insert:
+        loop_text
+        # Payload (Interested Data to send)
+        data = {
+              "actionName": "Add Learning bite",
+              "title": "Confidentiality",
+              "description": "Test for formatting",
+              "skill_id": "",
+              "image": "",
+              "author": "",
+              "enableFromDate": "",
+              "pages": [
+                  { 
+                  "isVideo": false,
+                  "isHtml": true,
+                  "isImageUrl": false,
+                  "_id": "",
+                  "text": str(loop_text),
+                  "image": "",
+                  "isPageOpen": true,
+                  "position": 0
+                  },
+                  {
+                  "text": "",
+                  "image": "",
+                  "isHtml": true,
+                  "isVideo": false,
+                  "url": "",
+                  "isImageUrl": false,
+                  "imageUrl": ""
+                  }
+              ],
+              "themeId": "",
+              "disableFontColor": false,
+              "backgroundImageId": "",
+              "tooltipOpen": false,
+              "pageContentLimit": 1000,
+              "loading": false,
+              "isPublished": false,
+              "imageSizeLimit": 500,
+              "imageSizeConvert": 0.000976562,
+              "lessonFontColor": "",
+              "lessonToggleFlag": false,
+              "lessonToggleName": "Show Learning bites",
+              "modalOpen": false,
+              "colorModalOpen": false,
+              "themeImgPreview": "",
+              "themePreviewOpen": false,
+              "isPPT": false,
+              "selectedPPTFile": "",
+              "pptFileSizeLimit": 153315,
+              "pptloader": false,
+              "files": [],
+              "pptTooltipOpen": false,
+              "checkFile": false,
+              "checkUpload": false,
+              "fileInputKey": 1671097443973,
+              "visible": false,
+              "deleteReason": "",
+              "lessonId": "",
+              "errors": {
+                  "actionNameError": "",
+                  "titleError": "",
+                  "descriptionError": "",
+                  "imageError": "",
+                  "skillListError": "",
+                  "lessonImageError": "",
+                  "backgroundImageError": "",
+                  "pptImportError": ""
+              },
+              "pagesParamsError": [
+                  {
+                  "textError": ""
+                  }
+              ],
+              "isDeleted": false,
+              "isQuiz": false,
+              # "_id": "", # Not needed as it's for update
+              "listorder": 3,
+              "createdBy": "",
+              "updatedBy": "",
+              "createdOn": "",
+              "updatedOn": "2022-12-15T09:43:27.954Z"
+              }
+
+        # Parameters passed required to post data to API
+        headers = {'Content-type': 'application/json',
+        "Authorization": "Bearer (Copy paste token without parenthesis)",
+        }
+        response = requests.post(endpoint, json=data, headers=headers, verify=false)
+        print(response.status_code)
+
+
+# Driver Code
+file_name = "AAA (1) (3).xlsx"
+read_excel_file(file_name)

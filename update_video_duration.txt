@@ -1,0 +1,54 @@
+
+# Step 1
+
+
+
+# # Assuming there is data in an excel file/existing excel file
+
+# # Importing Libraries
+# import openpyxl
+# from openpyxl import load_workbook
+# from openpyxl.styles import Font
+# from openpyxl.styles import Font, Border, Side, NamedStyle
+
+# # Data in excel 
+# data = {'Name': ['Tom', 'Joseph', 'Krish', 'John'], 'Age': [20, 21, 19, 18]}
+# filename = "Book1.xlsx"
+# # Taking excel file
+# workbook = load_workbook(filename)
+# worksheet = workbook.active
+# worksheet["A1"] = "Name"
+# worksheet["A1"].font = Font(bold=True)
+# worksheet["B1"] = "Age"
+# worksheet["B1"].font = Font(bold=True)
+# worksheet["I1"] = "Video Duration"
+# worksheet["I1"].font = Font(bold=True)
+# # Appending data to excel
+# for record in list(zip(*data.values())):
+#     worksheet.append(record) 
+# # Saved file updated with data       
+# workbook.save(filename)
+
+
+
+
+# Step 2
+
+
+
+# # Now appending data by finding last row to required column as mentioned here column = 6
+# # Importing Libraries
+# from openpyxl import load_workbook
+# # Loading excel workbook
+# myFileName=r'Book1.xlsx'
+# #load the workbook, and put the sheet into a variable
+# wb = load_workbook(filename=myFileName)
+# # taking sheet from excel workbook
+# ws = wb['Sheet1']
+# #Max row is a sheet function that gets the last row in a sheet.
+# newRowLocation = ws.max_row +1
+
+# #Writing to the cell we need to update with data, specifying row and column, and value as we need 
+# ws.cell(column=9,row=newRowLocation, value="data")
+# wb.save(filename=myFileName)
+# wb.close()

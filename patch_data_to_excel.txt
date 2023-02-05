@@ -1,0 +1,46 @@
+
+import os
+import requests
+import json
+from requests.structures import CaseInsensitiveDict
+
+
+#Configuration
+CLIENT_ID = ''
+TENANT_ID = ''
+AUTHORITY_URL = 'https://login.microsoftonline.com/{}'.format(TENANT_ID)
+RESOURCE_URL = 'https://graph.microsoft.com/'
+API_VERSION = 'v1.0'
+USERNAME = 'mail id' #Office365 user's account username
+PASSWORD = ''
+SCOPES = ['Files.ReadWrite.All'] # Add other scopes/permissions as needed.
+CLIENT_SECRET = ""
+TENANT_NAME = ""
+data = {'grant_type':"client_credentials", 
+        'resource':RESOURCE_URL, 
+        'client_id': CLIENT_ID, 
+        'client_secret':CLIENT_SECRET}
+
+URL = "https://login.windows.net/" + TENANT_ID + "/oauth2/token?api-version=1.0"
+r = requests.post(url = URL, data = data) 
+j = json.loads(r.text)
+TOKEN = j["access_token"]
+graph_URL = "https://graph.microsoft.com/v1.0/users/onedrive mail id/drive/items/015QQWSQOQVJ3WIYMA7RHJRIEVAGD4WHPH/workbook/worksheets/Sheet1//cell(row=01,column=01)"
+# headers={'Authorization': "Bearer " + TOKEN}
+
+# print(TOKEN)
+# r = requests.get(graph_URL, headers=headers)
+data = """
+{
+    "values": "This is the data."
+}
+"""
+headers = CaseInsensitiveDict()
+headers["Authorization"] = "Bearer " + TOKEN
+headers["Content-Type"] = "application/json"
+headers["Accept"] = "application/json"
+
+# print(r.content)
+update_workbook = requests.patch(graph_URL, headers=headers, data=data)
+
+print(update_workbook.content)

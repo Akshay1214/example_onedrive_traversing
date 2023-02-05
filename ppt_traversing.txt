@@ -1,0 +1,184 @@
+
+# Importing Libraries
+import os
+import requests
+import json
+import os
+import json
+import datetime
+
+
+# destination_path = "E:\\Becker OneDrive Data\\video_details\\"
+# destination_path = "E:\\Pr_Becker\\Fi_Auto\\video_test\\"
+destination_path = "E:\\Pr_Becker\\Ppt_to_pdf\\ppt_details\\"
+todays_batch_date = "2023-01-30"
+download_url_list = []
+
+
+def convert_to_date(date):
+    date = str.split(date, "-")
+    yy = int(date[0])
+    mm = int(date[1])
+    dd = int(date[2])
+    formated_date = datetime.datetime(yy, mm, dd)
+    return formated_date
+
+
+def createFile(data, file_name):
+    try:
+        base, ext = os.path.splitext(destination_path + file_name)
+        text_file_path = base + ".txt"
+        print("video details: ", text_file_path)
+        with open(text_file_path, 'w') as f:
+            f.write(data)
+    except:
+        print("the directory does not exist !!! ")
+
+
+vid_in_subfolders = []
+def traverse_child(folder_id, main_header):
+    req_graph_URL = "https://graph.microsoft.com/v1.0/users/onedrive mail id/drive/items/" + folder_id + "/children"
+    traverse_url = requests.get(req_graph_URL, headers=main_header)
+    video_traverse_url = "https://graph.microsoft.com/v1.0/users/one drive mail id/drive/items/" + folder_id + "/children"
+    traverse_data = json.loads(traverse_url.content)
+    # need to check if k == value again that loop
+    data_items = traverse_data.items()
+    for (k, v) in data_items:
+        if k == "value":
+            for data in v:
+                child_cnt = 0
+                sub_folder_id = ""
+                download_url = ""
+                sub_folder_name = ""
+                mime_type = ""
+                video_created_date = ""
+                for (sub_folder_key, sub_folder_val) in data.items():
+                    if(sub_folder_key == "folder"):
+                        for (child_key, child_val) in sub_folder_val.items():
+                            child_cnt = child_val
+                    if(sub_folder_key == "parentReference"):
+                        for (child_key, child_val) in sub_folder_val.items():
+                            if child_key == "path":
+                                video_path = child_val
+                            if child_key == "id":
+                                video_parent_folder_id = child_val
+                    if(sub_folder_key == "file"):
+                        # print(v)
+                        for (child_key, child_val) in sub_folder_val.items():
+                            if(child_key == "mimeType"):
+                                mime_type = child_val
+                    if(sub_folder_key == "name"):
+                        sub_folder_name = sub_folder_val
+                    if(sub_folder_key == "id"):
+                        sub_folder_id = sub_folder_val
+                    if(sub_folder_key == "@microsoft.graph.downloadUrl"):
+                        download_url = sub_folder_val
+                    if(sub_folder_key == "fileSystemInfo"):
+                        for (child_key, child_val) in sub_folder_val.items():
+                            if(child_key == "createdDateTime"):
+                                video_created_date_time = child_val
+                                video_created_date = str.split(video_created_date_time, "T")[0]
+                    # print("traversing ", sub_folder_name)
+                if(child_cnt == 0 and download_url == ""):
+                    print(sub_folder_name + " folder is empty!!")
+                    # print(sub_folder_name)
+                if(child_cnt > 0 and sub_folder_id != ""):
+                    print("traversing : " + sub_folder_name)
+                    traverse_child(sub_folder_id, main_header)
+                # if(download_url != "" and mime_type == "video/mp4"):
+                if(download_url != "" and mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation"):
+                # if(download_url != "" and mime_type == "application/pdf"):
+                    video_created_date = convert_to_date(video_created_date)
+                    batch_date = convert_to_date(todays_batch_date)
+                    if video_created_date == batch_date:
+                        print("-------------------------------------------")
+                        print("congratulations!!! found data here.")
+                        print("file name : " + sub_folder_name)
+                        print("video created date: ", video_created_date)
+                        print("video parent folder ID: ", video_parent_folder_id)
+                        print("video path : ", video_path)
+                        print("video traverse url: " + video_traverse_url)
+                        # appending data to the video details file
+                        vid_in_subfolders.append(sub_folder_name)
+                        video_data = ""
+                        video_data = "video_name => " + sub_folder_name + "\n"
+                        video_data = video_data + "video_path => " + video_path + "\n"
+                        video_data = video_data + "video_traverse_url => " + video_traverse_url + "\n"
+                        video_data = video_data + "video_parent_folder_id => " + video_parent_folder_id
+                        download_url_list.append(download_url)
+                        createFile(video_data, sub_folder_name)
+
+
+#Configuration
+CLIENT_ID = ''
+TENANT_ID = ''
+AUTHORITY_URL = 'https://login.microsoftonline.com/{}'.format(TENANT_ID)
+RESOURCE_URL = 'https://graph.microsoft.com/'
+API_VERSION = 'v1.0'
+USERNAME = 'one drive mail id' # Office365 user's account username
+PASSWORD = ''
+SCOPES = ['Files.ReadWrite.All'] # Add other scopes/permissions as needed.
+CLIENT_SECRET = ""
+TENANT_NAME = ""
+data = {'grant_type':"client_credentials", 
+        'resource':RESOURCE_URL, 
+        'client_id': CLIENT_ID, 
+        'client_secret':CLIENT_SECRET}
+URL = "https://login.windows.net/" + TENANT_ID + "/oauth2/token?api-version=1.0"
+r = requests.post(url = URL, data = data) 
+j = json.loads(r.text)
+TOKEN = j["access_token"]
+# graph_URL = "https://graph.microsoft.com/v1.0/users/one drive mail id/drive/items/015QQWSQIXQIWFP4YZDBHKYIDXTRGBBLCO/children/"
+graph_URL = "https://graph.microsoft.com/v1.0/users/one drive mail id/drive/items/015QQWSQIPC3ZNNWGD6FBLKFYPYOSDW7EX/children/"
+headers={'Authorization': "Bearer " + TOKEN}
+# print(TOKEN)
+r = requests.get(graph_URL, headers=headers)
+root_data = json.loads(r.content)
+print(root_data)
+print("received access token successfully !!! ")
+main_header = headers
+cnt = 0
+data_items = root_data.items()
+print("traversing data in 00_Inputs:")
+print("\n")
+for (k, v) in data_items:
+    if k == "value":
+        for data in v:
+            cnt = cnt + 1
+            print("\n")
+            print("-------------  item ", cnt, "  --------------")
+           
+            folder_id = ""
+            child_count = 0
+            for (level_1_key, level_1_val) in data.items():
+                # print(level_1_key + "----->  ", level_1_val)
+                if(level_1_key == "name"):
+                    folder_name = level_1_val
+                    print("folder name:    " + level_1_val)
+                if level_1_key == "id":
+                    folder_id = ""
+                    folder_id = level_1_val
+                    print("folder ID: ", level_1_val)
+                if(level_1_key == "folder"):
+                    for (child_key, child_val) in level_1_val.items():
+                        print(child_key + "     ----->", child_val)
+                        child_count = 0
+                        child_count = child_val
+                if(child_count != 0 and folder_id != ""):
+                    traverse_child(folder_id, main_header)
+print("---------------starting downloading task------------")
+# video_cnt = 0
+print("total videos :", len(download_url_list))
+# Count of videos found in traversing
+print("total subfolders:- ", len(vid_in_subfolders))
+count_files = []
+list_of_mp4 = []
+for video in vid_in_subfolders:
+    print(video)
+    count_files.append(video)
+for one_vid in count_files:
+    if one_vid not in list_of_mp4:
+        list_of_mp4.append(one_vid)
+print(len(list_of_mp4))
+
+# =====================================================================

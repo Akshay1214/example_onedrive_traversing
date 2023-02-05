@@ -1,0 +1,87 @@
+# # In this function it will take folder directory and start converting all mp4 files to mp3 and take their metadata.
+# # Importing Libraries
+# import os
+# # For converting mp4 video to mp3
+# import moviepy.editor as mp
+# # For getting length of mp3
+# from mutagen.mp3 import MP3
+# import glob, os
+
+# # Get the list of all files and directories
+# path = "E:/Pr_Becker/test_Automation/video_test/"
+# dir_list = os.listdir(path)
+# os.chdir("E:/Pr_Becker/test_Automation/video_test/")
+# for file in glob.glob("*.mp4"):
+#     print(file)
+#     file_renamed =  ((file).replace(".mp4", ""))
+#     print(file_renamed)
+#     #  Converting to audio file
+#     def convert_mp4_to_mp3(file):
+#         # Insert local video file path
+#         clip = mp.VideoFileClip(file)
+#         # Insert local audio file path
+#         clip.audio.write_audiofile(file_renamed + ".mp3")
+#     convert_mp4_to_mp3(file)
+
+#     # Function to convert the seconds into readable format 
+#     def convert(seconds):
+#         hours = seconds // 3600
+#         seconds %= 3600
+#         mins = seconds // 60
+#         seconds %= 60
+#         return hours, mins, seconds
+
+#     # Create an MP3 object 
+#     audio = MP3(file_renamed + ".mp3")
+#     # Contains all the data about the mp3 file
+#     audio_info = audio.info    
+#     length_in_secs = int(audio_info.length)
+#     hours, mins, seconds = convert(length_in_secs)
+#     print("Hours:", hours)
+#     print("Minutes:", mins)
+#     print("Seconds:", seconds)
+
+# =================================================================================================
+
+# # This function takes the mp4 file and gives the specified metadata.
+
+# # import the module
+# from tinytag import TinyTag
+# # Use TinyTag.get() method to get the info of the video file
+# # paste the path of the video file along with its type for example mp4
+# # Video_file=TinyTag.get("C:/Users/kovid/Downloads/365 Days (2022) (WebRip) (PC HD Full Movie).mp4")
+# Video_file=TinyTag.get("E:/Pr_Becker/test_Automation/video_test/R5 M4 T1C.mp4")
+# # Now manually write the headings of the particular information you want to extract
+# # for title
+# print("Title:",Video_file.title)
+# # for composer
+# print("composer:",Video_file.composer)
+# # for bitrate
+# print("bitrate:",Video_file.bitrate)
+# # for video size in bytes
+# print("size:",Video_file.filesize)
+# # for the duration of the video in seconds
+# print("Duration:",Video_file.duration)
+# # for the genre of the video
+# print("Genre:",Video_file.genre)
+
+# print("="*50)
+# # ====================================================================================================
+
+# # This function takes the mp4 file and gives the whole metadata of file. Need to download exiftool-12.55.
+
+# # import the preinstalled module
+# import subprocess
+# # write the complete path of your video file along with its type for example mp4 
+# # input_file="C:/Users/kovid/Downloads/365 Days (2022) (WebRip) (PC HD Full Movie).mp4"
+# input_file="E:/Pr_Becker/test_Automation/video_test/R5 M4 T1C.mp4"
+# # write the complete path of the ExifTool in your device along with .exe at last
+# # exe="C:/Exiftool/exiftool.exe"
+# exe="E:/Pr_Becker/test_Automation/video_test/exiftool-12.55/exiftool(-k).exe"
+# # process is a variable
+# process=subprocess.Popen([exe,input_file],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,universal_newlines=True)
+# # For the output
+# for output in process.stdout:
+#     print(output.strip()) # strip is used to remove unwanted spaces
+
+# # ==========================================================================================================

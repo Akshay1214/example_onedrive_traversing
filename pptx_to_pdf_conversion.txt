@@ -1,0 +1,22 @@
+import comtypes.client
+import os
+
+# please note that the comtypes library is only for windows
+
+ppt_dir_path = "E:\\Python Automations\\ppt"
+pdf_dir_path = "E:\\Python Automations\\pdf"
+dir_list = os.listdir(ppt_dir_path)
+
+def ppt_to_pdf(file, formatType = 32):
+    powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
+    powerpoint.Visible = 1
+    # Convert PPTX to PDF
+    pdf_file_name = os.path.splitext(file)
+    deck = powerpoint.Presentations.Open(ppt_dir_path + "\\" + file)
+    deck.SaveAs(pdf_dir_path + "\\" + pdf_file_name[0] + ".pdf", formatType) # formatType = 32 for ppt to pdf
+    deck.Close()
+    powerpoint.Quit()
+    
+for file in dir_list:
+    ppt_to_pdf(file)    
+    print("---    " + file + " converted to document successfully !!!")
